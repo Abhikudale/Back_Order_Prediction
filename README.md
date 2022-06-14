@@ -12,3 +12,19 @@ conda create -p venv python==3.7 -y
 '''
 use command prompt to use below command
 conda activate venv/ or conda activate venv
+
+pip install -r requirements.txt
+
+git status
+
+git add .
+
+git remove or git restore
+
+git commit -m "message"
+
+git remote -v
+
+git push origin main
+
+git branch
