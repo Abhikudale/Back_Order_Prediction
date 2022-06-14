@@ -29,4 +29,12 @@ git push origin main
 
 git branch
 
-Added new line to check diff
+Herokuemailid=cv004700@gmail.com
+API Key=1c9dd245-f5a8-4b53-ab30-6e98db73ee56
+Heroku-app-name=machinelearningsample
+
+Build docker image 
+
+docker build -t <image_name>:<tagname>
+
+>Note:-Image name for docker must be lower case
