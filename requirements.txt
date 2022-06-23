@@ -1,6 +1,5 @@
-flask
-gunicorn
 sklearn
 pandas
 numpy
--e .
+flask
+gunicorn

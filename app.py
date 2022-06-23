@@ -1,6 +1,6 @@
 import sys
-from flask import Flask
 import housing
+from flask import flask
 from housing.exception import HousingException
 from housing.logger import logging 
 
