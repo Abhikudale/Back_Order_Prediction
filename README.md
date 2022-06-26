@@ -39,3 +39,6 @@ docker build -t <image_name>:<tagname>
 
 >Note:-Image name for docker must be lower case
 Adding this line to check if auto deployment happens
+
+Install ipykernel
+pip install ipykernel
