@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 from typing import List
 
 #Declaring variable for setup function
-PROJECT_NAME="housing-predictor",
-VERSION="0.0.1",
-AUTHOR="Abhinandan Kudale",
+PROJECT_NAME="housing-predictor"
+VERSION="0.0.1"
+AUTHOR="Abhinandan Kudale"
 DESCRIPTION="This is a first FSDS Nov batch Machine Learning Project"
 REQUIREMENT_FILE_NAME="requirements.txt"
 
@@ -16,16 +16,15 @@ def get_requirements_list()->List[str]:
     of libraries mentioned in requirements.txt file
     """
     with open(REQUIREMENT_FILE_NAME) as requirement_file:
-        print(REQUIREMENT_FILE_NAME)
-        requirement_file.readlines().remove("-e .")
+        return requirement_file.readlines().remove("-e .")
         
 
 setup(
-    name=PROJECT_NAME,
-    version=VERSION,
-    author=AUTHOR,
-    description=DESCRIPTION,
-    packages=find_packages(),
-    install_requires=get_requirements_list()
+name=PROJECT_NAME,
+version=VERSION,
+author=AUTHOR,
+description=DESCRIPTION,
+packages=find_packages(),
+install_requires=get_requirements_list()
 )
 
