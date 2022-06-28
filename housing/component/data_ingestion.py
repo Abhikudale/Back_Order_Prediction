@@ -6,7 +6,6 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from housing.entity.config_entity import DataIngestionConfig
 from housing.exception import HousingException
 from housing.entity.artifact_entity import DataIngestionArtifact
-from six.moves import urllib
 from housing.logger import logging
 import pandas as pd
 import numpy as np
@@ -22,8 +21,9 @@ class DataIngestion:
     def download_housing_data(self,) -> str:
         try:
             #extract remote url to download dataset
+            
             download_url = self.data_ingestion_config.dataset_download_url
-
+            
 
             #folder location to download file
             tgz_download_dir = self.data_ingestion_config.tgz_download_dir
