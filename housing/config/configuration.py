@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from housing.entity.config_entity import DataIngestionConfig,\
 DataValidationConfig, DataTransformationConfig, ModelTrainingConfig,\
 ModelEvaluationConfig, ModelPusherConfig, TrainingPipelineConfig
@@ -6,7 +6,6 @@ from housing.util.util import read_yaml_file
 from housing.constant import *
 from housing.exception import HousingException
 from housing.logger import logging
-import os
 
 class Configuration:
     def __init__(self,
@@ -28,8 +27,26 @@ class Configuration:
             data_ingestion_info=self.config_info[DATA_INGESTION_CONFIG_KEY]
             
             dataset_download_url=data_ingestion_info[DATA_INGESTION_DOWNLOAD_URL_KEY]
-            tgz_download_dir=os.path.join(
-                
+            
+            tgz_download_dir = os.path.join(
+            data_ingestion_artifact_dir,
+            data_ingestion_info[DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY]
+            )
+            raw_data_dir = os.path.join(data_ingestion_artifact_dir,
+            data_ingestion_info[DATA_INGESTION_RAW_DATA_DIR_KEY]
+            )
+
+            ingested_data_dir = os.path.join(
+                data_ingestion_artifact_dir,
+                data_ingestion_info[DATA_INGESTION_INGESTED_DIR_NAME_KEY]
+            )
+            ingested_train_dir = os.path.join(
+                ingested_data_dir,
+                data_ingestion_info[DATA_INGESTION_TRAIN_DIR_KEY]
+            )
+            ingested_test_dir =os.path.join(
+                ingested_data_dir,
+                data_ingestion_info[DATA_INGESTION_TEST_DIR_KEY]
             )
 
 
@@ -43,7 +60,7 @@ class Configuration:
                     data_ingestion_info[DATA_INGESTION_RAW_DATA_DIR_KEY]), 
                 ingested_data_dir=os.path.join(
                     data_ingestion_artifact_dir,
-                    data_ingestion_info[DATA_INGESTION_DIR_NAME_KEY]), 
+                    data_ingestion_info[DATA_INGESTION_INGESTED_DIR_NAME_KEY]), 
                 ingested_train_dir=os.path.join(
                     data_ingestion_artifact_dir,
                     data_ingestion_info[DATA_INGESTION_TRAIN_DIR_KEY]), 

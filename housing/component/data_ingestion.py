@@ -1,9 +1,4 @@
-
-
-import logging
-from operator import index
-import os
-import sys
+import os, sys
 import tarfile
 from turtle import down
 
@@ -12,6 +7,7 @@ from housing.entity.config_entity import DataIngestionConfig
 from housing.exception import HousingException
 from housing.entity.artifact_entity import DataIngestionArtifact
 from six.moves import urllib
+from housing.logger import logging
 import pandas as pd
 import numpy as np
 
