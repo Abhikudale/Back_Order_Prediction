@@ -1,8 +1,7 @@
 import os, sys
 import tarfile
-from turtle import down
-
 from sklearn.model_selection import StratifiedShuffleSplit
+from six.moves import urllib
 from housing.entity.config_entity import DataIngestionConfig
 from housing.exception import HousingException
 from housing.entity.artifact_entity import DataIngestionArtifact
@@ -24,7 +23,6 @@ class DataIngestion:
             
             download_url = self.data_ingestion_config.dataset_download_url
             
-
             #folder location to download file
             tgz_download_dir = self.data_ingestion_config.tgz_download_dir
 
@@ -44,17 +42,15 @@ class DataIngestion:
 
     def extract_tgz_file(self,tgz_file_path:str):
         try:
-            raw_data_dir = self.data_ingestion_config.tgz_download_dir
+            raw_data_dir = self.data_ingestion_config.raw_data_dir
 
             os.makedirs(raw_data_dir,exist_ok=True)
 
-            housing_tgz_file_obj = tarfile.open(tgz_file_path)
-
             logging.info("Extracting tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
-            with tarfile.open(tgz_file_path) as housing_tgz_file_path:
+            with tarfile.open(tgz_file_path) as housing_tgz_file_obj:
                 housing_tgz_file_obj.extractall(path=raw_data_dir)
             logging.info(f"Extraction completed")
-            return raw_file_path
+            
         
         except Exception as e:
             raise HousingException(e,sys) from e
@@ -89,20 +85,20 @@ class DataIngestion:
                 strat_train_set = housing_data_frame.loc[train_index].drop(["income_cat"], axis=1)
                 start_test_set = housing_data_frame.loc[test_index].drop(["income_cat"], axis=1)
             
-            train_file_path = self.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
+            train_file_path = os.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
 
-            test_file_path = self.path.join(self.data_ingestion_config.ingested_test_dir,file_name)
+            test_file_path = os.path.join(self.data_ingestion_config.ingested_test_dir,file_name)
 
             if strat_train_set is not None:
                 os.makedirs(self.data_ingestion_config.ingested_train_dir,exist_ok=True)
-                strat_train_set.to_csv(train_file_path,index=False)
                 logging.info(f"Exporting training dataset in to file:[{train_file_path}]")
-
+                strat_train_set.to_csv(train_file_path,index=False)
+                
             if strat_test_set is not None:
                 os.makedirs(self.data_ingestion_config.ingested_test_dir,exist_ok=True)
-                strat_test_set.to_csv(test_file_path,index=False)
                 logging.info(f"Exporting testing dataset in to file:[{test_file_path}]")
-
+                strat_test_set.to_csv(test_file_path,index=False)
+                
             data_ingestion_artifact = DataIngestionArtifact(train_file_path = train_file_path,
                                 test_file_path=test_file_path,
                                 is_ingested=True,
@@ -126,4 +122,4 @@ class DataIngestion:
             raise HousingException(e,sys) from e
 
     def __del__(self):
-        logging.info(f"{'='*20}Data Ingestion log started.{'='*20}\n\n")
+        logging.info(f"{'='*20}Data Ingestion log completed.{'='*20}\n\n")
