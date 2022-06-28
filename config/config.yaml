@@ -14,7 +14,7 @@ data_ingestion_config:
 
 
 data_validation_config:
-  schema_file_name: schema.yaml
+  scheme_file_path: schema.yaml
 
 data_transformation_config:
   add_bedroom_per_room: true
