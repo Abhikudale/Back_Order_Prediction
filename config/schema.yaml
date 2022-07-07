@@ -10,6 +10,20 @@ columns:
   median_housevalue: float
   ocean_proximity: category
 
+numerical_columns:
+  - lognitude
+  - latitude
+  - housing_median_age
+  - total_rooms
+  - total_bedrooms
+  - population
+  - households
+  - median_income
+  - median_housevalue
+  
+categorical_columns:
+  - ocean_proximity
+
 target_column: median_housing_value
 
 domain_value:
