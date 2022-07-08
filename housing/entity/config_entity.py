@@ -8,7 +8,7 @@ DataValidationConfig=namedtuple("DataValidationConfig",
 
 DataTransformationConfig=namedtuple("DataTransformationConfig",["add_bedroom_per_room",
                                                                 "transformed_train_dir",
-                                                                "transformed_testdir",
+                                                                "transformed_test_dir",
                                                                 "preprocessed_object_file_path"])
 
 ModelTrainingConfig=namedtuple("ModelTrainingConfig",["trained_model_file_path",

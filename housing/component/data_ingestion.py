@@ -84,7 +84,7 @@ class DataIngestion:
 
             for train_index, test_index in split.split(housing_data_frame, housing_data_frame["income_cat"]):
                 strat_train_set = housing_data_frame.loc[train_index].drop(["income_cat"], axis=1)
-                start_test_set = housing_data_frame.loc[test_index].drop(["income_cat"], axis=1)
+                strat_test_set = housing_data_frame.loc[test_index].drop(["income_cat"], axis=1)
             
             train_file_path = os.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
 

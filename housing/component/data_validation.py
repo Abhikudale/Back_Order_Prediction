@@ -43,7 +43,7 @@ class DataValidation:
 
             logging.info(f"Is train and test file exist?-> {is_available}")
 
-            is_available = self.is_train_test_file_exist()
+            ##is_available = self.is_train_test_file_exist()
             
             if not is_available:
                 training_file = self.data_ingestion_artifact.train_file_path
@@ -73,7 +73,7 @@ class DataValidation:
 
             profile.calculate(train_df,test_df)
 
-            report = json.load(profile.json())
+            report = json.loads(profile.json())
 
             report_file_path=self.data_validation_config.report_file_path
 
@@ -91,7 +91,7 @@ class DataValidation:
         try:
             dashboard = Dashboard(tabs=[DataDriftTab()])
             train_df, test_df=self.get_train_and_test_df()
-            dashboard.calculate()
+            dashboard.calculate(train_df,test_df)
             
             report_page_file_path=self.data_validation_config.report_file_path
 
