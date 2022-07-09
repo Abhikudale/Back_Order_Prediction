@@ -9,6 +9,7 @@ from housing.entity.artifact_entity import DataIngestionArtifact, DataTransforma
 from housing.entity.config_entity import DataIngestionConfig
 from housing.component.data_validation import DataValidation
 
+
 class Pipeline:
 
     def __init__(self, config: Configuration = Configuration()) ->None:

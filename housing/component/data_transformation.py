@@ -156,8 +156,8 @@ class DataTransformation:
             logging.info(f"Obtaining preprocessing object")
             preprocessing_obj = self.get_data_transformer_object()
             logging.info(f"Obtaining training and test file path")
-            train_file_path = self.data_ingestion_artifact.train_file_path
-            test_file_path = self.data_ingestion_artifact.test_file_path
+            train_file_path = self.data_ingestion_artifact[0].train_file_path
+            test_file_path = self.data_ingestion_artifact[0].test_file_path
 
             schema_file_path = self.data_validation_artifact.schema_file_path
 
@@ -170,10 +170,10 @@ class DataTransformation:
             logging.info(f"Splitting input and target feature from training and testing dataframe.")
 
             input_feature_train_df = train_df.drop(columns=[target_column_name],axis=1)
-            target_feature_train_df = train_df(target_column_name)
+            target_feature_train_df = train_df[target_column_name]
             
             input_feature_test_df = test_df.drop(columns=[target_column_name],axis=1)
-            target_feature_test_df = test_df(target_column_name)
+            target_feature_test_df = test_df[target_column_name]
 
             logging.info(f"Appyling preprocessing object on training dataframe and testing dataframe")
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
@@ -198,7 +198,7 @@ class DataTransformation:
             save_numpy_array_data(file_path=transformed_train_file_path,array=train_arr)
             save_numpy_array_data(file_path=transformed_test_file_path,array=test_arr)
 
-            preprocessed_object_file_path=self.data_transformation_config.preprocessed_object_file_path
+            preprocessed_object_file_path=self.data_transformation_config
 
             logging.info(f"Saving preprocessing object")
             save_object(file_path=preprocessed_object_file_path,obj=preprocessing_obj)

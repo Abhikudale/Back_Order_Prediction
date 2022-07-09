@@ -5,5 +5,6 @@ sklearn
 pandas
 PyYAML
 evidently
+six
 dill
 -e .
