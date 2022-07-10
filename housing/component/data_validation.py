@@ -27,7 +27,15 @@ class DataValidation:
         except Exception as e:
             raise HousingException(e,sys) from e
 
-    def is_train_test_file_exist(self)->bool:
+    def get_train_and_test_df(self):
+        try:
+            train_df = pd.read_csv(self.data_ingestion_artifact.train_file_path)
+            test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
+            return train_df,test_df
+        except Exception as e:
+            raise HousingException(e,sys) from e
+
+    def is_train_test_file_exists(self)->bool:
         try:
             logging.info(f"Checking if training and test file is available")
             is_train_file_exist=False
@@ -51,20 +59,33 @@ class DataValidation:
                 message=f"Training File: {training_file} or Testing File: {testing_file}\
                 is not present"
                 raise Exception(message)
-                validation_status=self.validate_dataset_schema()
-
+            
+            return is_available
 
         except Exception as e:
             raise HousingException(e,sys) from e
 
-    def get_train_and_test_df(self):
+    def validate_dataset_schema(self)->bool:
         try:
-            train_df=pd.read_csv(self.data_ingestion_artifact.train_file_path)
-            test_df=pd.read_csv(self.data_ingestion_artifact.test_file_path)
-            return train_df,test_df
+            validation_status = False
+            
+            #Assigment validate training and testing dataset using schema file
+            #1. Number of Column
+            #2. Check the value of ocean proximity 
+            # acceptable values     <1H OCEAN
+            # INLAND
+            # ISLAND
+            # NEAR BAY
+            # NEAR OCEAN
+            #3. Check column names
+
+
+            validation_status = True
+            return validation_status 
         except Exception as e:
             raise HousingException(e,sys) from e
 
+    
     def get_and_save_data_drift_report(self):
         try:
             profile = Profile(sections=[DataDriftProfileSection()])
@@ -81,9 +102,9 @@ class DataValidation:
 
             os.makedirs(report_dir,exist_ok=True)
             
-            with open(self.data_validation_config.report_file_path,"w") as report_file:
+            with open(report_file_path,"w") as report_file:
                 json.dump(report, report_file, indent=6)
-
+            return report
         except Exception as e:
             raise HousingException(e,sys) from e
 
@@ -92,11 +113,9 @@ class DataValidation:
             dashboard = Dashboard(tabs=[DataDriftTab()])
             train_df, test_df=self.get_train_and_test_df()
             dashboard.calculate(train_df,test_df)
-            
-            report_page_file_path=self.data_validation_config.report_file_path
 
-            report_page_dir=os.path.dirname(report_page_file_path)
-
+            report_page_file_path = self.data_validation_config.report_page_file_path
+            report_page_dir = os.path.dirname(report_page_file_path)
             os.makedirs(report_page_dir,exist_ok=True)
             
             dashboard.save(report_page_file_path)
@@ -104,7 +123,7 @@ class DataValidation:
         except Exception as e:
             raise HousingException(e,sys) from e
 
-    def is_data_drift_found(self):
+    def is_data_drift_found(self)->bool:
         try:
             report = self.get_and_save_data_drift_report()
             self.save_data_drift_report_page()
@@ -114,11 +133,12 @@ class DataValidation:
 
     def initiate_data_validation(self)-> DataValidationArtifact:
         try:
-            self.is_train_test_file_exist()
+            self.is_train_test_file_exists()
             self.validate_dataset_schema()
             self.is_data_drift_found()
-            data_validation_artifact=DataValidationArtifact(
-                schema_file_path=self.data_validation_config.scheme_file_path,
+
+            data_validation_artifact = DataValidationArtifact(
+                schema_file_path=self.data_validation_config.schema_file_path,
                 report_file_path=self.data_validation_config.report_file_path,
                 report_page_file_path=self.data_validation_config.report_page_file_path,
                 is_validated=True,
@@ -128,26 +148,5 @@ class DataValidation:
             
             return data_validation_artifact
 
-        except Exception as e:
-            raise HousingException(e,sys) from e
-
-    def validate_dataset_schema(self)->bool:
-        try:
-            validation_status = False
-
-            #Validate Training and Testing dataset using schema file
-            #1. Number of column
-            #2. Check the values of ocean proximity
-            # acceptable values <1H OCEAN
-            # INLAND
-            # ISLAND
-            # NEAR BAY
-            # NEAR OCEAN
-            #3. Check column names
-
-
-            validation_status = True
-
-            return validation_status
         except Exception as e:
             raise HousingException(e,sys) from e

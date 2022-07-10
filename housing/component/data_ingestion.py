@@ -45,6 +45,9 @@ class DataIngestion:
         try:
             raw_data_dir = self.data_ingestion_config.raw_data_dir
 
+            if os.path.exists(raw_data_dir):
+                os.remove(raw_data_dir)
+
             os.makedirs(raw_data_dir,exist_ok=True)
 
             logging.info("Extracting tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
