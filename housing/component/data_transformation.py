@@ -1,12 +1,11 @@
 
-import sys
+import sys,os
 
 from housing.constant import *
 from housing.exception import HousingException
 from housing.logger import logging
-from housing.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact,\
-                                            DataTransformationArtifact
-
+from housing.entity.artifact_entity import DataIngestionArtifact,DataTransformationArtifact,\
+                                            DataValidationArtifact
 from housing.entity.config_entity import DataTransformationConfig
 import numpy as np
 from sklearn.base import BaseEstimator,TransformerMixin
@@ -90,21 +89,21 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
 
 class DataTransformation:
 
-    def __init__(self,data_transformation_config: DataTransformationConfig,
-                data_ingestion_artifact: DataIngestionArtifact,
-                data_validation_artifact: DataValidationArtifact
-                ):
+    def __init__(self, data_transformation_config: DataTransformationConfig,
+                 data_ingestion_artifact: DataIngestionArtifact,
+                 data_validation_artifact: DataValidationArtifact
+                 ):
         try:
-            logging.info(f"{'=' * 20} Data Transformation log started. {'=' * 20} ")
-            self.data_transformation_config=data_transformation_config,
-            self.data_ingestion_artifact=data_ingestion_artifact,
-            self.data_validation_artifact=data_validation_artifact
+            logging.info(f"{'>>' * 30}Data Transformation log started.{'<<' * 30} ")
+            self.data_transformation_config= data_transformation_config
+            self.data_ingestion_artifact = data_ingestion_artifact
+            self.data_validation_artifact = data_validation_artifact
 
         except Exception as e:
             raise HousingException(e,sys) from e
+    
 
-
-    def get_data_transformer_object(self) -> ColumnTransformer:
+    def get_data_transformer_object(self)->ColumnTransformer:
         try:
             schema_file_path = self.data_validation_artifact.schema_file_path
             dataset_schema = read_yaml_file(file_path=schema_file_path)
@@ -115,7 +114,7 @@ class DataTransformation:
             num_pipeline = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy="median")),
                     ('feature_generator', FeatureGenerator(
-                        add_bedrooms_per_room=self.data_transformation_config,
+                        add_bedrooms_per_room=self.data_transformation_config.add_bedroom_per_room,
                         columns=numerical_columns
                     )),
                     ('scaler', StandardScaler())
@@ -143,13 +142,13 @@ class DataTransformation:
             raise HousingException(e,sys) from e
 
 
-    def initiate_data_transformation(self) ->DataTransformationArtifact:
+    def initiate_data_transformation(self)->DataTransformationArtifact:
         try:
             logging.info(f"Obtaining preprocessing object")
             preprocessing_obj = self.get_data_transformer_object()
             logging.info(f"Obtaining training and test file path")
-            train_file_path = self.data_ingestion_artifact[0].train_file_path
-            test_file_path = self.data_ingestion_artifact[0].test_file_path
+            train_file_path = self.data_ingestion_artifact.train_file_path
+            test_file_path = self.data_ingestion_artifact.test_file_path
 
             schema_file_path = self.data_validation_artifact.schema_file_path
 
@@ -176,8 +175,8 @@ class DataTransformation:
 
             test_arr = np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
 
-            transformed_train_dir = self.data_transformation_config[0].transformed_train_dir
-            transformed_test_dir = self.data_transformation_config[0].transformed_test_dir
+            transformed_train_dir = self.data_transformation_config.transformed_train_dir
+            transformed_test_dir = self.data_transformation_config.transformed_test_dir
 
             logging.info(f"Saving transformed training and testing array.")
 
@@ -190,7 +189,7 @@ class DataTransformation:
             save_numpy_array_data(file_path=transformed_train_file_path,array=train_arr)
             save_numpy_array_data(file_path=transformed_test_file_path,array=test_arr)
 
-            preprocessing_obj_file_path = self.data_transformation_config[0].preprocessed_object_file_path
+            preprocessing_obj_file_path = self.data_transformation_config.preprocessed_object_file_path
 
             logging.info(f"Saving preprocessing object.")
             save_object(file_path=preprocessing_obj_file_path,obj=preprocessing_obj)

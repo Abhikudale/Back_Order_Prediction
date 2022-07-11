@@ -23,16 +23,16 @@ def write_yaml_file(file_path:str,data:dict=None):
         raise HousingException(e,sys)
         
 def read_yaml_file(file_path:str)->dict:
-        """
-        Reads a YAML file and return the contents of the dictionary
-        filepath=str
-        """
-        try:
-            with open(file_path,"rb") as yaml_file:
-                return yaml.safe_load(yaml_file)
-        
-        except Exception as e:
-            raise HousingException(e,sys) from e
+    """
+    Reads a YAML file and returns the contents as a dictionary.
+    file_path: str
+    """
+    try:
+        with open(file_path, 'rb') as yaml_file:
+            return yaml.safe_load(yaml_file)
+    except Exception as e:
+        raise HousingException(e,sys) from e
+
 
 def save_numpy_array_data(file_path: str, array: np.array):
     """
