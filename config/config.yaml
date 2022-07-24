@@ -1,11 +1,11 @@
 
 
 training_pipeline_config:
-  pipeline_name: housing
+  pipeline_name: backorder
   artifact_dir: artifact
 
 data_ingestion_config:
-  dataset_download_url: https://raw.githubusercontent.com/ageron/handson-ml/master/datasets/housing/housing.tgz
+  dataset_download_url: C:\\MLProjects\\Back_Order_Prediction\\backorder\\datasets\\Kaggle_Test_Dataset_v2.csv
   raw_data_dir: raw_data
   tgz_download_dir: tgz_data
   ingested_dir: ingested_data

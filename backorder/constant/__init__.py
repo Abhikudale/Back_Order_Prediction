@@ -47,10 +47,6 @@ DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY = "preprocessing_dir"
 DATA_TRANSFORMATION_PREPROCESSED_OBJECT_FILE_NAME_KEY = "preprocessed_object_file_name"
 
 
-COLUMN_TOTAL_ROOMS = "total_rooms"
-COLUMN_POPULATION = "population"
-COLUMN_HOUSEHOLDS = "households"
-COLUMN_TOTAL_BEDROOM = "total_bedrooms"
 DATASET_SCHEMA_COLUMNS_KEY=  "columns"
 
 NUMERICAL_COLUMN_KEY="numerical_columns"

@@ -1,11 +1,11 @@
 import sys, os
-from housing.entity.config_entity import DataIngestionConfig,\
+from backorder.entity.config_entity import DataIngestionConfig,\
 DataValidationConfig, DataTransformationConfig, ModelTrainerConfig,\
 ModelEvaluationConfig, ModelPusherConfig, TrainingPipelineConfig
-from housing.util.util import read_yaml_file
-from housing.constant import *
-from housing.exception import HousingException
-from housing.logger import logging
+from backorder.util.util import read_yaml_file
+from backorder.constant import *
+from backorder.exception import BackOrderException
+from backorder.logger import logging
 
 class Configuration:
 
@@ -18,7 +18,7 @@ class Configuration:
             self.training_pipeline_config = self.get_training_pipeline_config()
             self.time_stamp = current_time_stamp
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
 
     def get_data_ingestion_config(self) ->DataIngestionConfig:
@@ -67,7 +67,7 @@ class Configuration:
             return data_ingestion_config
             
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def get_data_validation_config(self) ->DataValidationConfig:
         try:
@@ -103,7 +103,7 @@ class Configuration:
             return data_validation_config
             
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
     
     def get_data_transformation_config(self) -> DataTransformationConfig:
         try:
@@ -153,7 +153,7 @@ class Configuration:
             return data_transformation_config
         
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def get_model_trainer_config(self) ->ModelTrainerConfig:
         try:
@@ -184,7 +184,7 @@ class Configuration:
             logging.info(f"Model trainer config: {model_trainer_config}")
             return model_trainer_config
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
     
     def get_model_evaluation_config(self) ->ModelEvaluationConfig:
         try:
@@ -201,7 +201,7 @@ class Configuration:
             logging.info(f"Model Evaluation Config: {response}.")
             return response
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
 
     def get_model_pusher_config(self) -> ModelPusherConfig:
@@ -216,7 +216,7 @@ class Configuration:
             return model_pusher_config
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def get_training_pipeline_config(self) ->TrainingPipelineConfig:
         try:
@@ -233,4 +233,4 @@ class Configuration:
             return training_pipeline_config
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e

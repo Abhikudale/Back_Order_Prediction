@@ -4,18 +4,18 @@ from typing import List
 from threading import Thread
 import uuid
 import pandas as pd
-from housing.component.data_ingestion import DataIngestion
-from housing.component.data_transformation import DataTransformation
-from housing.component.model_evaluation import ModelEvaluation
-from housing.component.model_pusher import ModelPusher
-from housing.component.model_trainer import ModelTrainer
-from housing.config.configuration import Configuration
-from housing.constant import *
-from housing.logger import logging
-from housing.exception import HousingException
-from housing.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact, ModelEvaluationArtifact, ModelPusherArtifact, ModelTrainerArtifact
-from housing.entity.config_entity import ModelTrainerConfig
-from housing.component.data_validation import DataValidation
+from backorder.component.data_ingestion import DataIngestion
+from backorder.component.data_transformation import DataTransformation
+from backorder.component.model_evaluation import ModelEvaluation
+from backorder.component.model_pusher import ModelPusher
+from backorder.component.model_trainer import ModelTrainer
+from backorder.config.configuration import Configuration
+from backorder.constant import *
+from backorder.logger import logging
+from backorder.exception import BackOrderException
+from backorder.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact, DataValidationArtifact, ModelEvaluationArtifact, ModelPusherArtifact, ModelTrainerArtifact
+from backorder.entity.config_entity import ModelTrainerConfig
+from backorder.component.data_validation import DataValidation
 
 
 Experiment = namedtuple("Experiment", ["experiment_id", "initialization_timestamp", "artifact_time_stamp",
@@ -36,7 +36,7 @@ class Pipeline(Thread):
             super().__init__(daemon=False, name="pipeline")
             self.config = config
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
 
     def start_data_ingestion(self)->DataIngestionArtifact:
@@ -46,7 +46,7 @@ class Pipeline(Thread):
             return data_ingestion.initiate_data_ingestion()
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
     
     def start_data_validation(self,data_ingestion_artifact:DataIngestionArtifact)-> DataValidationArtifact:
         try:
@@ -55,7 +55,7 @@ class Pipeline(Thread):
                                              )
             return data_validation.initiate_data_validation()
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def start_data_transformation(self,
                                   data_ingestion_artifact: DataIngestionArtifact,
@@ -69,7 +69,7 @@ class Pipeline(Thread):
             )
             return data_transformation.initiate_data_transformation()
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def start_model_trainer(self, data_transformation_artifact: DataTransformationArtifact) -> ModelTrainerArtifact:
         try:
@@ -79,7 +79,7 @@ class Pipeline(Thread):
             return model_trainer.initiate_model_trainer()
 
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
     def start_model_evaluation(self, data_ingestion_artifact: DataIngestionArtifact,
                                data_validation_artifact: DataValidationArtifact,
@@ -92,7 +92,7 @@ class Pipeline(Thread):
                 model_trainer_artifact=model_trainer_artifact)
             return model_eval.initiate_model_evaluation()
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
     def start_model_pusher(self, model_eval_artifact: ModelEvaluationArtifact) -> ModelPusherArtifact:
         try:
@@ -102,7 +102,7 @@ class Pipeline(Thread):
             )
             return model_pusher.initiate_model_pusher()
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
 
     def run_pipeline(self):
@@ -166,7 +166,7 @@ class Pipeline(Thread):
             logging.info(f"Pipeline experiment: {Pipeline.experiment}")
             self.save_experiment()
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
     def run(self):
         try:
@@ -195,7 +195,7 @@ class Pipeline(Thread):
             else:
                 print("First start experiment")
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e
 
     @classmethod
     def get_experiments_status(cls, limit: int = 5) -> pd.DataFrame:
@@ -207,4 +207,4 @@ class Pipeline(Thread):
             else:
                 return pd.DataFrame()
         except Exception as e:
-            raise HousingException(e, sys) from e
+            raise BackOrderException(e, sys) from e

@@ -1,34 +1,76 @@
 columns:
-  longitude: float
-  latitude: float
-  housing_median_age: float
-  total_rooms: float
-  total_bedrooms: float
-  population: float
-  households: float
-  median_income: float
-  median_house_value: float
-  ocean_proximity: category
+  sku: float
+  national_inv: float
+  lead_time: float
+  in_transit_qty: float
+  forecast_3_month: float
+  forecast_6_month: float
+  forecast_9_month: float
+  sales_1_month: float
+  sales_3_month: float
+  sales_6_month: float
+  sales_9_month: float
+  min_bank: float
+  pieces_past_due: float
+  perf_6_month_avg: float
+  perf_12_month_avg: float
+  local_bo_qty: float
+  deck_risk: category
+  oe_constraint: category
+  ppap_risk: category
+  stop_auto_buy: category
+  rev_stop: category
+  potential_issue: category
+  went_on_backorder: category
 
 numerical_columns:
-  - longitude
-  - latitude
-  - housing_median_age
-  - total_rooms
-  - total_bedrooms
-  - population
-  - households
-  - median_income
+  - sku
+  - national_inv
+  - lead_time
+  - in_transit_qty
+  - forecast_3_month
+  - forecast_6_month
+  - forecast_9_month
+  - sales_1_month
+  - sales_3_month
+  - sales_6_month
+  - sales_9_month
+  - min_bank
+  - pieces_past_due
+  - perf_6_month_avg
+  - perf_12_month_avg
+  - local_bo_qty
   
 categorical_columns:
-  - ocean_proximity
+  - deck_risk
+  - oe_constraint
+  - ppap_risk
+  - stop_auto_buy
+  - rev_stop
+  - potential_issue
+  - went_on_backorder
 
-target_column: median_house_value
+target_column: went_on_backorder
 
 domain_value:
-  ocean_proximity:
-    - <1H OCEAN
-    - INLAND
-    - ISLAND
-    - NEAR BAY
-    - NEAR OCEAN
+  - deck_risk:
+    - Yes
+    - No
+  - oe_constraint:
+    - Yes
+    - No
+  - ppap_risk:
+    - Yes
+    - No
+  - stop_auto_buy:
+    - Yes
+    - No
+  - rev_stop:
+    - Yes
+    - No
+  - potential_issue:
+    - Yes
+    - No
+  - went_on_backorder:
+    - Yes
+    - No

@@ -1,10 +1,11 @@
 
+import shutil
 from sklearn.model_selection import StratifiedShuffleSplit
 from six.moves import urllib
-from housing.entity.config_entity import DataIngestionConfig
-from housing.exception import HousingException
-from housing.entity.artifact_entity import DataIngestionArtifact
-from housing.logger import logging
+from backorder.entity.config_entity import DataIngestionConfig
+from backorder.exception import BackOrderException
+from backorder.entity.artifact_entity import DataIngestionArtifact
+from backorder.logger import logging
 import pandas as pd
 import numpy as np
 import os, sys
@@ -16,9 +17,9 @@ class DataIngestion:
             logging.info(f"{'='*20}Data Ingestion log started.{'='*20}")
             self.data_ingestion_config = data_ingestion_config
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
-    def download_housing_data(self,) -> str:
+    def download_backorder_data(self,) -> str:
         try:
             #extract remote url to download dataset
             
@@ -29,17 +30,18 @@ class DataIngestion:
 
             os.makedirs(tgz_download_dir,exist_ok=True)
 
-            housing_file_name = os.path.basename(download_url)
+            backorder_file_name = os.path.basename(download_url)
 
-            tgz_file_path = os.path.join(tgz_download_dir,housing_file_name)
-            logging.info(f"Downloading file from :[{download_url}] in to :[{tgz_file_path}]")
-            urllib.request.urlretrieve(download_url,tgz_file_path)
-            logging.info(f"File:[{tgz_file_path}] has been downloaded successfully")
+            tgz_file_path = os.path.join(tgz_download_dir,backorder_file_name)
+            logging.info(f"Copied file from :[{download_url}] in to :[{tgz_file_path}]")
+            shutil.copy(src=download_url,dst=tgz_file_path)
+            #urllib.request.urlretrieve(download_url,tgz_file_path)
+            logging.info(f"File:[{tgz_file_path}] has been received successfully")
 
             return tgz_file_path
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def extract_tgz_file(self,tgz_file_path:str):
         try:
@@ -50,14 +52,15 @@ class DataIngestion:
 
             os.makedirs(raw_data_dir,exist_ok=True)
 
-            logging.info("Extracting tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
-            with tarfile.open(tgz_file_path) as housing_tgz_file_obj:
-                housing_tgz_file_obj.extractall(path=raw_data_dir)
-            logging.info(f"Extraction completed")
+            logging.info("Copy file from tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
+            shutil.copyfile(src=tgz_file_path,dst=raw_data_dir)
+            #with tarfile.open(tgz_file_path) as backorder_tgz_file_obj:
+            #    backorder_tgz_file_obj.extractall(path=raw_data_dir)
+            logging.info(f"File copying completed")
             
         
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def split_data_as_train_test(self) -> DataIngestionArtifact:
         try:
@@ -65,16 +68,18 @@ class DataIngestion:
             
             file_name = os.listdir(raw_data_dir)[0]
             
-            housing_file_path = os.path.join(raw_data_dir,file_name)
+            backorder_file_path = os.path.join(raw_data_dir,file_name)
             
-            logging.info(f"Reading csv file:[{housing_file_path}]")
+            logging.info(f"Reading csv file:[{backorder_file_path}]")
 
-            housing_data_frame = pd.read_csv(housing_file_path)
+            backorder_data_frame = pd.read_csv(backorder_file_path)
             
-            housing_data_frame["income_cat"] = pd.cut(
-                housing_data_frame["median_income"],
-                bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
-                labels= [1,2,3,4,5]
+            backorder_data_frame.drop(columns=["sku"], axis=1, inplace = True)
+
+            backorder_data_frame["lead_time_bins"] = pd.cut(
+                backorder_data_frame["lead_time"],
+                bins=[0.0, 10, 20, 30, 40, 50, np.inf],
+                labels= [1,2,3,4,5,6]
             )
 
             logging.info(f"Splitting data in to Train and Test dataset")
@@ -82,13 +87,15 @@ class DataIngestion:
             strat_train_set = None
 
             strat_test_set = None
-
+            
             split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
 
-            for train_index, test_index in split.split(housing_data_frame, housing_data_frame["income_cat"]):
-                strat_train_set = housing_data_frame.loc[train_index].drop(["income_cat"], axis=1)
-                strat_test_set = housing_data_frame.loc[test_index].drop(["income_cat"], axis=1)
+            for train_index, test_index in split.split(backorder_data_frame, backorder_data_frame["lead_time_bins"]):
+                strat_train_set = backorder_data_frame.loc[train_index].drop(["lead_time_bins"], axis=1)
+                strat_test_set = backorder_data_frame.loc[test_index].drop(["lead_time_bins"], axis=1)
             
+
+
             train_file_path = os.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
 
             test_file_path = os.path.join(self.data_ingestion_config.ingested_test_dir,file_name)
@@ -112,18 +119,18 @@ class DataIngestion:
             return data_ingestion_artifact
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def initiate_data_ingestion(self) ->DataIngestionArtifact:
         try:
-            tgz_file_path = self.download_housing_data()
+            tgz_file_path = self.download_backorder_data()
 
             self.extract_tgz_file(tgz_file_path=tgz_file_path)
 
             return self.split_data_as_train_test()
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def __del__(self):
         logging.info(f"{'='*20}Data Ingestion log completed.{'='*20}\n\n")

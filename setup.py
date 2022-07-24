@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from typing import List
 
 #Declaring variable for setup function
-PROJECT_NAME="housing-predictor"
+PROJECT_NAME="backorder-predictor"
 VERSION="0.0.1"
 AUTHOR="Abhinandan Kudale"
 DESCRIPTION="This is a first FSDS Nov batch Machine Learning Project"

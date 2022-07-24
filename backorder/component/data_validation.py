@@ -3,11 +3,11 @@ from cgi import test
 from email import message
 import os
 import sys
-from housing.constant import DATA_INGESTION_ARTIFACT_DIR
-from housing.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
-from housing.logger import logging
-from housing.exception import HousingException
-from housing.entity.config_entity import DataValidationConfig
+from backorder.constant import DATA_INGESTION_ARTIFACT_DIR
+from backorder.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
+from backorder.logger import logging
+from backorder.exception import BackOrderException
+from backorder.entity.config_entity import DataValidationConfig
 from evidently.model_profile import Profile
 from evidently.model_profile.sections import DataDriftProfileSection
 from evidently.dashboard import Dashboard
@@ -25,7 +25,7 @@ class DataValidation:
             self.data_validation_config=data_validation_config
             self.data_ingestion_artifact=data_ingestion_artifact
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def get_train_and_test_df(self):
         try:
@@ -33,7 +33,7 @@ class DataValidation:
             test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
             return train_df,test_df
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def is_train_test_file_exists(self)->bool:
         try:
@@ -63,7 +63,7 @@ class DataValidation:
             return is_available
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def validate_dataset_schema(self)->bool:
         try:
@@ -83,7 +83,7 @@ class DataValidation:
             validation_status = True
             return validation_status 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     
     def get_and_save_data_drift_report(self):
@@ -106,7 +106,7 @@ class DataValidation:
                 json.dump(report, report_file, indent=6)
             return report
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def save_data_drift_report_page(self):
         try:
@@ -121,7 +121,7 @@ class DataValidation:
             dashboard.save(report_page_file_path)
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def is_data_drift_found(self)->bool:
         try:
@@ -129,7 +129,7 @@ class DataValidation:
             self.save_data_drift_report_page()
             return True
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
 
     def initiate_data_validation(self)-> DataValidationArtifact:
         try:
@@ -149,4 +149,4 @@ class DataValidation:
             return data_validation_artifact
 
         except Exception as e:
-            raise HousingException(e,sys) from e
+            raise BackOrderException(e,sys) from e
