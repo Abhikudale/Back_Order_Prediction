@@ -10,8 +10,8 @@ import sys
 from collections import namedtuple
 from typing import List
 from backorder.logger import logging
-from sklearn.metrics import recall_score, confusion_matrix, classification_report,\
-                            accuracy_score, r2_score, mean_squared_error
+from sklearn.metrics import precision_score,recall_score, confusion_matrix, classification_report,\
+                            accuracy_score, r2_score, mean_squared_error, roc_auc_score
 GRID_SEARCH_KEY = 'grid_search'
 MODULE_KEY = 'module'
 CLASS_KEY = 'class'
@@ -75,12 +75,16 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             y_test_pred = model.predict(X_test)
 
             #Calculating r squared score on training and testing dataset
-            train_accuracy_score = accuracy_score(y_train, y_train_pred)
-            test_accuracy_score = accuracy_score(y_test, y_test_pred)
-
-            #Calculating r squared score on training and testing dataset
+            #Accuracy is not application for this project as it involves imbalanced dataset
+            #train_accuracy_score = accuracy_score(y_train, y_train_pred)
+            #test_accuracy_score = accuracy_score(y_test, y_test_pred)
+            #Calculating recall score on training and testing dataset
             train_recall_score = recall_score(y_train, y_train_pred)
             test_recall_score = recall_score(y_test, y_test_pred)
+
+            #Calculating precision score on training and testing dataset
+            train_precision_score = precision_score(y_train, y_train_pred)
+            test_precision_score = precision_score(y_test, y_test_pred)
             
             #Calculating mean squared error on training and testing dataset
             train_confusion_matrix = confusion_matrix(y_train, y_train_pred)
@@ -89,35 +93,43 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             train_classification_report = classification_report(y_train, y_train_pred)
             test_classification_report = classification_report(y_test, y_test_pred)
 
-            # Calculating harmonic mean of train_recall_score and test_recall_score
-            model_accuracy = (2 * (train_accuracy_score * test_accuracy_score)) / (train_accuracy_score + test_accuracy_score)
-            diff_test_train_acc = abs(test_accuracy_score - train_accuracy_score)
-            
-            model_mean_recall_score = (2 * (train_recall_score * test_recall_score)) / (train_recall_score + test_recall_score)
-            diff_test_train_recall_score = abs(test_recall_score - train_recall_score)
+            train_roc_auc_score = roc_auc_score(y_train, y_train_pred)
+            test_roc_auc_score = roc_auc_score(y_test, y_test_pred)
 
+            # Calculating harmonic mean of train_accuracy and test_accuracy
+            model_accuracy = (2 * (train_roc_auc_score * test_roc_auc_score)) / (train_roc_auc_score + test_roc_auc_score)
+            diff_test_train_acc = abs(test_roc_auc_score - train_roc_auc_score)
+            mean_recall_score = (2 * (train_recall_score * test_recall_score)) / (train_recall_score + test_recall_score)
+            # Calculating harmonic mean of train_recall_score and test_recall_score
+            
             #logging all important metric
             logging.info(f"{'>>'*30} Score {'<<'*30}")
+            logging.info(f"Train Confusion Matrix\t\t Test Confusion Matrix")
+            logging.info(f"{train_confusion_matrix}\t\t {test_confusion_matrix}")
             logging.info(f"Train Recall Score\t\t Test Recall Score\t\t Average Score")
-            logging.info(f"{train_accuracy_score}\t\t {test_accuracy_score}\t\t{model_accuracy}")
-
-            logging.info(f"{'>>'*30} Loss {'<<'*30}")
-            logging.info(f"Diff test train accuracy: [{diff_test_train_acc}].") 
-            logging.info(f"Train Recall Score: [{train_recall_score}].")
-            logging.info(f"Test Recall Score: [{test_recall_score}].")
-            logging.info(f"Model Train Test Mean Recall Score: [{model_mean_recall_score}].") 
-            logging.info(f"Diff test train Recall Score: [{diff_test_train_recall_score}].") 
+            logging.info(f"{train_recall_score}\t\t {train_precision_score}\t\t{train_classification_report}")
             
+            logging.info(f"{'>>'*30} Loss {'<<'*30}")
+            
+            logging.info(f"Train Recall Score: [{train_classification_report}].")
+            logging.info(f"Test Recall Score: [{test_classification_report}].")
+            logging.info(f"Train AUC Score: [{train_roc_auc_score}].")
+            logging.info(f"Test AUC Score: [{test_roc_auc_score}].")
+
+            logging.info(f"Model Train Test Mean AUC Score: [{model_accuracy}].") 
+            logging.info(f"Diff test train AUC Score: [{diff_test_train_acc}].") 
+            logging.info(f"Model Mean Recall Score: [{mean_recall_score}].") 
+
             #if model accuracy is greater than base accuracy and train and test score is within certain thershold
             #we will accept that model as accepted model
             if model_accuracy >= base_accuracy and diff_test_train_acc < 0.05:
-                model_mean_recall_score >= recall_score and diff_test_train_recall_score < 0.05
+                mean_recall_score >= recall_score
                 metric_info_artifact = MetricInfoArtifact(model_name=model_name,
                                                         model_object=model,
                                                         train_recall_score=train_recall_score,
                                                         test_recall_score=test_recall_score,
-                                                        train_accuracy=train_accuracy_score,
-                                                        test_accuracy=test_accuracy_score,
+                                                        train_accuracy=train_roc_auc_score,
+                                                        test_accuracy=test_roc_auc_score,
                                                         model_accuracy=model_accuracy,
                                                         index_number=index_number)
 

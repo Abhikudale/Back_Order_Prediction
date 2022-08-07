@@ -9,7 +9,7 @@ from backorder.logger import logging
 import pandas as pd
 import numpy as np
 import os, sys
-import tarfile
+from sklearn.model_selection import train_test_split
 
 class DataIngestion:
     def __init__(self, data_ingestion_config:DataIngestionConfig):
@@ -53,7 +53,7 @@ class DataIngestion:
             os.makedirs(raw_data_dir,exist_ok=True)
 
             logging.info("Copy file from tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
-            shutil.copyfile(src=tgz_file_path,dst=raw_data_dir)
+            shutil.copy(src=tgz_file_path,dst=raw_data_dir)
             #with tarfile.open(tgz_file_path) as backorder_tgz_file_obj:
             #    backorder_tgz_file_obj.extractall(path=raw_data_dir)
             logging.info(f"File copying completed")
@@ -76,39 +76,33 @@ class DataIngestion:
             
             backorder_data_frame.drop(columns=["sku"], axis=1, inplace = True)
 
-            backorder_data_frame["lead_time_bins"] = pd.cut(
-                backorder_data_frame["lead_time"],
-                bins=[0.0, 10, 20, 30, 40, 50, np.inf],
-                labels= [1,2,3,4,5,6]
-            )
 
             logging.info(f"Splitting data in to Train and Test dataset")
 
-            strat_train_set = None
+            train_set = None
 
-            strat_test_set = None
+            test_set = None
             
-            split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+            X = backorder_data_frame.iloc[:,:-1]
+            y = backorder_data_frame.iloc[:,-1]
 
-            for train_index, test_index in split.split(backorder_data_frame, backorder_data_frame["lead_time_bins"]):
-                strat_train_set = backorder_data_frame.loc[train_index].drop(["lead_time_bins"], axis=1)
-                strat_test_set = backorder_data_frame.loc[test_index].drop(["lead_time_bins"], axis=1)
-            
-
+            X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.2, random_state=42)
+            train_set = np.r_[X_train, X_test]
+            test_set = np.r_[y_train, y_test]
 
             train_file_path = os.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
 
             test_file_path = os.path.join(self.data_ingestion_config.ingested_test_dir,file_name)
 
-            if strat_train_set is not None:
+            if train_set is not None:
                 os.makedirs(self.data_ingestion_config.ingested_train_dir,exist_ok=True)
                 logging.info(f"Exporting training dataset in to file:[{train_file_path}]")
-                strat_train_set.to_csv(train_file_path,index=False)
+                train_set.to_csv(train_file_path,index=False)
                 
-            if strat_test_set is not None:
+            if test_set is not None:
                 os.makedirs(self.data_ingestion_config.ingested_test_dir,exist_ok=True)
                 logging.info(f"Exporting testing dataset in to file:[{test_file_path}]")
-                strat_test_set.to_csv(test_file_path,index=False)
+                test_set.to_csv(test_file_path,index=False)
                 
             data_ingestion_artifact = DataIngestionArtifact(train_file_path = train_file_path,
                                 test_file_path=test_file_path,
