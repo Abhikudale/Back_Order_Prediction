@@ -4,7 +4,7 @@ from backorder.logger import logging
 from backorder.exception import BackOrderException
 from backorder.entity.config_entity import ModelEvaluationConfig
 from backorder.entity.artifact_entity import DataIngestionArtifact,DataValidationArtifact,ModelTrainerArtifact,ModelEvaluationArtifact
-from backorder.entity.model_factory import evaluate_regression_model
+from backorder.entity.model_factory import evaluate_classification_model
 from backorder.constant import *
 import numpy as np
 import os
@@ -127,7 +127,7 @@ class ModelEvaluation:
 
             model_list = [model, trained_model_object]
 
-            metric_info_artifact = evaluate_regression_model(model_list=model_list,
+            metric_info_artifact = evaluate_classification_model(model_list=model_list,
                                                                X_train=train_dataframe,
                                                                y_train=train_target_arr,
                                                                X_test=test_dataframe,

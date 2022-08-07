@@ -48,7 +48,6 @@ categorical_columns:
   - stop_auto_buy
   - rev_stop
   - potential_issue
-  - went_on_backorder
 
 target_column: went_on_backorder
 

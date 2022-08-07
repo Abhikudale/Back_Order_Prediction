@@ -5,42 +5,33 @@ grid_search:
     cv: 5
     verbose: 2
 model_selection:
+  # module_0:
+  #   class: LogisticRegression
+  #   module: sklearn.linear_model
+  #   params:
+  #     fit_intercept: true
+  #   search_param_grid:
+  #     fit_intercept:
+  #     - true
+  #     - false
+  #     penalty:
+  #     - l2
+  # module_1:
+  #   class: AdaBoostClassifier
+  #   module: sklearn.ensemble
+  #   params:
+  #     learning_rate: 0.1
+  #     n_estimators: 50
+  #   search_param_grid:
+  #     learning_rate: 
+  #     - 0.05
+  #     n_estimators:
+  #     - 100
   module_0:
-    class: LogisticRegression
-    module: sklearn.linear_model
-    params:
-      fit_intercept: true
-    search_param_grid:
-      fit_intercept:
-      - true
-      - false
-      penalty:
-      - l1
-      - l2
-      - elasticnet
-      - none
-  module_1:
-    class: AdaBoostClassifier
-    module: sklearn.ensemble
-    params:
-      learning_rate: 0.1
-      n_estimators: 50
-    search_param_grid:
-      learning_rate: 
-      - 0.05
-      - 0.1
-      - 0.5
-      n_estimators:
-      - 50
-      - 100
-      - 200
-  module_2:
-    class: DecisionTreeClassifier()
-    module: sklearn.ensemble
+    class: DecisionTreeClassifier
+    module: sklearn.tree
     params:
       min_samples_leaf: 3
     search_param_grid:
       min_samples_leaf:
-      - 4
-      - 9
       - 12

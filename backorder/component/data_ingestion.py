@@ -73,10 +73,10 @@ class DataIngestion:
             logging.info(f"Reading csv file:[{backorder_file_path}]")
 
             backorder_data_frame = pd.read_csv(backorder_file_path)
+
+            backorder_data_frame = backorder_data_frame.head(10000)
             
-            backorder_data_frame.drop(columns=["sku"], axis=1, inplace = True)
-
-
+            
             logging.info(f"Splitting data in to Train and Test dataset")
 
             train_set = None
@@ -87,8 +87,10 @@ class DataIngestion:
             y = backorder_data_frame.iloc[:,-1]
 
             X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.2, random_state=42)
-            train_set = np.r_[X_train, X_test]
-            test_set = np.r_[y_train, y_test]
+            train_set = X_train
+            train_set['went_on_backorder'] = y_train
+            test_set = X_test
+            test_set['went_on_backorder'] = y_test
 
             train_file_path = os.path.join(self.data_ingestion_config.ingested_train_dir,file_name)
 

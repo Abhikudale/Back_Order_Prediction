@@ -2,6 +2,7 @@ from cmath import log
 import importlib
 from pyexpat import model
 import numpy as np
+import pandas as pd
 import yaml
 from backorder.exception import BackOrderException
 import os
@@ -11,7 +12,7 @@ from collections import namedtuple
 from typing import List
 from backorder.logger import logging
 from sklearn.metrics import precision_score,recall_score, confusion_matrix, classification_report,\
-                            accuracy_score, r2_score, mean_squared_error, roc_auc_score
+                            accuracy_score, r2_score, mean_squared_error, roc_curve, auc, roc_auc_score
 GRID_SEARCH_KEY = 'grid_search'
 MODULE_KEY = 'module'
 CLASS_KEY = 'class'
@@ -37,11 +38,11 @@ BestModel = namedtuple("BestModel", ["model_serial_number",
 
 MetricInfoArtifact = namedtuple("MetricInfoArtifact",
                                 ["model_name", "model_object", "train_recall_score", "test_recall_score", "train_accuracy",
-                                 "test_accuracy", "model_accuracy", "index_number"])
+                                 "test_accuracy", "mean_roc_auc_score","mean_auc_score", "index_number"])
 
 
 
-def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:np.ndarray, X_test:np.ndarray, y_test:np.ndarray, base_accuracy:float=0.6, recall_score:float=0.6)->MetricInfoArtifact:
+def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:np.ndarray, X_test:np.ndarray, y_test:np.ndarray, base_accuracy:float=0.5)->MetricInfoArtifact:
     """
     Description:
     This function compare multiple classification models and returns best model
@@ -70,6 +71,11 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             model_name = str(model)  #getting model name based on model object
             logging.info(f"{'>>'*30}Started evaluating model: [{type(model).__name__}] {'<<'*30}")
             
+            #Predicting Probabilities
+            pred_prob_train = model.predict_proba(X_train)
+            pred_prob_test = model.predict_proba(X_test)
+            # roc curve for models
+            fpr1, tpr1, thresh1 = roc_curve(y_test, pred_prob1[:,1], pos_label=1)
             #Getting prediction for training and testing dataset
             y_train_pred = model.predict(X_train)
             y_test_pred = model.predict(X_test)
@@ -79,27 +85,46 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             #train_accuracy_score = accuracy_score(y_train, y_train_pred)
             #test_accuracy_score = accuracy_score(y_test, y_test_pred)
             #Calculating recall score on training and testing dataset
-            train_recall_score = recall_score(y_train, y_train_pred)
-            test_recall_score = recall_score(y_test, y_test_pred)
+            train_recall_score = recall_score(y_train, y_train_pred,pos_label='Yes')
+            test_recall_score = recall_score(y_test, y_test_pred,pos_label='Yes')
 
             #Calculating precision score on training and testing dataset
-            train_precision_score = precision_score(y_train, y_train_pred)
-            test_precision_score = precision_score(y_test, y_test_pred)
+            train_precision_score = precision_score(y_train, y_train_pred,pos_label='Yes')
+            test_precision_score = precision_score(y_test, y_test_pred,pos_label='Yes')
             
-            #Calculating mean squared error on training and testing dataset
+            #Calculating mean squared error on traintrain_precision_scoreng dataset
+            
             train_confusion_matrix = confusion_matrix(y_train, y_train_pred)
             test_confusion_matrix = confusion_matrix(y_test, y_test_pred)
-
+            print(train_confusion_matrix)
+            print(test_confusion_matrix)
             train_classification_report = classification_report(y_train, y_train_pred)
             test_classification_report = classification_report(y_test, y_test_pred)
+            print(train_classification_report)
+            print(test_classification_report)
+            
+            y_train = (y_train=='Yes').astype(int)
+            y_train_pred = (y_train_pred=='Yes').astype(int)
+            y_test = (y_test=='Yes').astype(int)
+            y_test_pred = (y_test_pred=='Yes').astype(int)
 
+
+            fpr_train, tpr_train, thr_train = roc_curve(y_train, y_train_pred)
+            train_auc_score = auc(fpr_train, tpr_train)
             train_roc_auc_score = roc_auc_score(y_train, y_train_pred)
+            print(train_auc_score)
+            print(train_roc_auc_score)
+        
+            fpr_test, tpr_test, thr_test = roc_curve(y_test, y_test_pred)
+            test_auc_score = auc(fpr_test, tpr_test)
             test_roc_auc_score = roc_auc_score(y_test, y_test_pred)
+            print(test_auc_score)
+            print(test_roc_auc_score)
 
             # Calculating harmonic mean of train_accuracy and test_accuracy
-            model_accuracy = (2 * (train_roc_auc_score * test_roc_auc_score)) / (train_roc_auc_score + test_roc_auc_score)
-            diff_test_train_acc = abs(test_roc_auc_score - train_roc_auc_score)
-            mean_recall_score = (2 * (train_recall_score * test_recall_score)) / (train_recall_score + test_recall_score)
+            mean_roc_auc_score = (2 * (train_roc_auc_score * test_roc_auc_score)) / (train_roc_auc_score + test_roc_auc_score)
+            mean_auc_score = (2 * (train_auc_score * test_auc_score)) / (train_auc_score + test_auc_score)
+            diff_test_train_acc = abs(train_auc_score - test_auc_score)
             # Calculating harmonic mean of train_recall_score and test_recall_score
             
             #logging all important metric
@@ -116,21 +141,22 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             logging.info(f"Train AUC Score: [{train_roc_auc_score}].")
             logging.info(f"Test AUC Score: [{test_roc_auc_score}].")
 
-            logging.info(f"Model Train Test Mean AUC Score: [{model_accuracy}].") 
+            logging.info(f"Model Train Test Mean AUC Score: [{mean_roc_auc_score}].") 
+            logging.info(f"Model Mean Recall Score: [{mean_auc_score}].") 
             logging.info(f"Diff test train AUC Score: [{diff_test_train_acc}].") 
-            logging.info(f"Model Mean Recall Score: [{mean_recall_score}].") 
-
+            
             #if model accuracy is greater than base accuracy and train and test score is within certain thershold
             #we will accept that model as accepted model
-            if model_accuracy >= base_accuracy and diff_test_train_acc < 0.05:
-                mean_recall_score >= recall_score
+            if mean_roc_auc_score >= base_accuracy and diff_test_train_acc < 0.05:
+                mean_auc_score >= 0.5
                 metric_info_artifact = MetricInfoArtifact(model_name=model_name,
                                                         model_object=model,
                                                         train_recall_score=train_recall_score,
                                                         test_recall_score=test_recall_score,
                                                         train_accuracy=train_roc_auc_score,
                                                         test_accuracy=test_roc_auc_score,
-                                                        model_accuracy=model_accuracy,
+                                                        mean_roc_auc_score=mean_roc_auc_score,
+                                                        mean_auc_score=mean_auc_score,
                                                         index_number=index_number)
 
                 logging.info(f"Acceptable model found {metric_info_artifact}. ")

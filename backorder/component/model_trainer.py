@@ -7,7 +7,7 @@ from backorder.entity.artifact_entity import DataTransformationArtifact, ModelTr
 from backorder.entity.config_entity import ModelTrainerConfig
 from backorder.util.util import load_numpy_array_data,save_object,load_object
 from backorder.entity.model_factory import MetricInfoArtifact, ModelFactory,GridSearchedBestModel
-from backorder.entity.model_factory import evaluate_regression_model
+from backorder.entity.model_factory import evaluate_classification_model
 
 
 
@@ -83,7 +83,7 @@ class ModelTrainer:
             
             model_list = [model.best_model for model in grid_searched_best_model_list ]
             logging.info(f"Evaluation all trained model on training and testing dataset both")
-            metric_info:MetricInfoArtifact = evaluate_regression_model(model_list=model_list,X_train=x_train,y_train=y_train,X_test=x_test,y_test=y_test,base_accuracy=base_accuracy)
+            metric_info:MetricInfoArtifact = evaluate_classification_model(model_list=model_list,X_train=x_train,y_train=y_train,X_test=x_test,y_test=y_test,base_accuracy=base_accuracy)
 
             logging.info(f"Best found model on both training and testing dataset.")
             
