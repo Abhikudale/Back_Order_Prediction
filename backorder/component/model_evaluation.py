@@ -125,25 +125,25 @@ class ModelEvaluation:
                 logging.info(f"Model accepted. Model eval artifact {model_evaluation_artifact} created")
                 return model_evaluation_artifact
 
-            model_list = [model, trained_model_object]
+            #model_list = [model, trained_model_object]
+            model_list = [model]
+            # metric_info_artifact = evaluate_classification_model(model_list=model_list,
+            #                                                    X_train=train_dataframe,
+            #                                                    y_train=train_target_arr,
+            #                                                    X_test=test_dataframe,
+            #                                                    y_test=test_target_arr,
+            #                                                    base_accuracy=self.model_trainer_artifact.auc_score_test,
+            #                                                    )
+            # logging.info(f"Model evaluation completed. model metric artifact: {metric_info_artifact}")
 
-            metric_info_artifact = evaluate_classification_model(model_list=model_list,
-                                                               X_train=train_dataframe,
-                                                               y_train=train_target_arr,
-                                                               X_test=test_dataframe,
-                                                               y_test=test_target_arr,
-                                                               base_accuracy=self.model_trainer_artifact.model_accuracy,
-                                                               )
-            logging.info(f"Model evaluation completed. model metric artifact: {metric_info_artifact}")
+            # if metric_info_artifact is None:
+            #     response = ModelEvaluationArtifact(is_model_accepted=False,
+            #                                        evaluated_model_path=trained_model_file_path
+            #                                        )
+            #     logging.info(response)
+            #     return response
 
-            if metric_info_artifact is None:
-                response = ModelEvaluationArtifact(is_model_accepted=False,
-                                                   evaluated_model_path=trained_model_file_path
-                                                   )
-                logging.info(response)
-                return response
-
-            if metric_info_artifact.index_number == 1:
+            if len(model_list) == 1:
                 model_evaluation_artifact = ModelEvaluationArtifact(evaluated_model_path=trained_model_file_path,
                                                                     is_model_accepted=True)
                 self.update_evaluation_report(model_evaluation_artifact)

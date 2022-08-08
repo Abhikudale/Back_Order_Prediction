@@ -20,7 +20,7 @@ from backorder.component.data_validation import DataValidation
 
 Experiment = namedtuple("Experiment", ["experiment_id", "initialization_timestamp", "artifact_time_stamp",
                                        "running_status", "start_time", "stop_time", "execution_time", "message",
-                                       "experiment_file_path", "accuracy", "is_model_accepted"])
+                                       "experiment_file_path", "auc_score", "is_model_accepted"])
 
 
 
@@ -125,7 +125,7 @@ class Pipeline(Thread):
                                              experiment_file_path=Pipeline.experiment_file_path,
                                              is_model_accepted=None,
                                              message="Pipeline has been started.",
-                                             accuracy=None,
+                                             auc_score=None,
                                              )
             logging.info(f"Pipeline experiment: {Pipeline.experiment}")
 
@@ -161,7 +161,7 @@ class Pipeline(Thread):
                                              message="Pipeline has been completed.",
                                              experiment_file_path=Pipeline.experiment_file_path,
                                              is_model_accepted=model_evaluation_artifact.is_model_accepted,
-                                             accuracy=model_trainer_artifact.model_accuracy
+                                             auc_score=model_trainer_artifact.auc_score_test
                                              )
             logging.info(f"Pipeline experiment: {Pipeline.experiment}")
             self.save_experiment()

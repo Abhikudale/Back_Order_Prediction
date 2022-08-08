@@ -7,12 +7,13 @@ import yaml
 from backorder.exception import BackOrderException
 import os
 import sys
-
+import matplotlib.pyplot as plt
 from collections import namedtuple
 from typing import List
 from backorder.logger import logging
 from sklearn.metrics import precision_score,recall_score, confusion_matrix, classification_report,\
-                            accuracy_score, r2_score, mean_squared_error, roc_curve, auc, roc_auc_score
+                            accuracy_score, r2_score, mean_squared_error, roc_curve, auc, roc_auc_score,\
+                            f1_score
 GRID_SEARCH_KEY = 'grid_search'
 MODULE_KEY = 'module'
 CLASS_KEY = 'class'
@@ -37,8 +38,9 @@ BestModel = namedtuple("BestModel", ["model_serial_number",
                                      "best_score", ])
 
 MetricInfoArtifact = namedtuple("MetricInfoArtifact",
-                                ["model_name", "model_object", "train_recall_score", "test_recall_score", "train_accuracy",
-                                 "test_accuracy", "mean_roc_auc_score","mean_auc_score", "index_number"])
+                                ["model_name", "model_object","diff_test_train_acc"
+                                 ,"auc_score_test", "index_number"])
+
 
 
 
@@ -71,92 +73,117 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             model_name = str(model)  #getting model name based on model object
             logging.info(f"{'>>'*30}Started evaluating model: [{type(model).__name__}] {'<<'*30}")
             
-            #Predicting Probabilities
-            pred_prob_train = model.predict_proba(X_train)
-            pred_prob_test = model.predict_proba(X_test)
-            # roc curve for models
-            fpr1, tpr1, thresh1 = roc_curve(y_test, pred_prob1[:,1], pos_label=1)
-            #Getting prediction for training and testing dataset
             y_train_pred = model.predict(X_train)
             y_test_pred = model.predict(X_test)
-
+            #Getting prediction for training and testing dataset
             #Calculating r squared score on training and testing dataset
             #Accuracy is not application for this project as it involves imbalanced dataset
             #train_accuracy_score = accuracy_score(y_train, y_train_pred)
             #test_accuracy_score = accuracy_score(y_test, y_test_pred)
             #Calculating recall score on training and testing dataset
             train_recall_score = recall_score(y_train, y_train_pred,pos_label='Yes')
-            test_recall_score = recall_score(y_test, y_test_pred,pos_label='Yes')
-
+            test_recall_score = recall_score(y_test, y_test_pred, pos_label='Yes')
+            logging.info(f"Train Recall Score: [{train_recall_score}].")
+            logging.info(f"Test Recall Score: [{test_recall_score}].")
+            
             #Calculating precision score on training and testing dataset
             train_precision_score = precision_score(y_train, y_train_pred,pos_label='Yes')
             test_precision_score = precision_score(y_test, y_test_pred,pos_label='Yes')
+            logging.info(f"Train Precision Score: [{train_precision_score}].")
+            logging.info(f"Test Precision Score: [{test_precision_score}].")
             
             #Calculating mean squared error on traintrain_precision_scoreng dataset
+            train_f1_score=f1_score(y_train, y_train_pred,pos_label='Yes')
+            test_f1_score=f1_score(y_test, y_test_pred,pos_label='Yes')
+            logging.info(f"Train F Score: [{train_f1_score}].")
+            logging.info(f"Test F Score: [{test_f1_score}].")
             
             train_confusion_matrix = confusion_matrix(y_train, y_train_pred)
             test_confusion_matrix = confusion_matrix(y_test, y_test_pred)
-            print(train_confusion_matrix)
-            print(test_confusion_matrix)
+            logging.info(f"Train confusion matrix: [{train_confusion_matrix}].")
+            logging.info(f"Test confusion matrix: [{test_confusion_matrix}].")
+            
             train_classification_report = classification_report(y_train, y_train_pred)
             test_classification_report = classification_report(y_test, y_test_pred)
-            print(train_classification_report)
-            print(test_classification_report)
+            logging.info(f"Train Classification Report: [{train_classification_report}].")
+            logging.info(f"Test Classification Report: [{test_classification_report}].")
             
-            y_train = (y_train=='Yes').astype(int)
-            y_train_pred = (y_train_pred=='Yes').astype(int)
-            y_test = (y_test=='Yes').astype(int)
-            y_test_pred = (y_test_pred=='Yes').astype(int)
-
-
-            fpr_train, tpr_train, thr_train = roc_curve(y_train, y_train_pred)
-            train_auc_score = auc(fpr_train, tpr_train)
-            train_roc_auc_score = roc_auc_score(y_train, y_train_pred)
-            print(train_auc_score)
-            print(train_roc_auc_score)
-        
-            fpr_test, tpr_test, thr_test = roc_curve(y_test, y_test_pred)
-            test_auc_score = auc(fpr_test, tpr_test)
-            test_roc_auc_score = roc_auc_score(y_test, y_test_pred)
-            print(test_auc_score)
-            print(test_roc_auc_score)
-
-            # Calculating harmonic mean of train_accuracy and test_accuracy
-            mean_roc_auc_score = (2 * (train_roc_auc_score * test_roc_auc_score)) / (train_roc_auc_score + test_roc_auc_score)
-            mean_auc_score = (2 * (train_auc_score * test_auc_score)) / (train_auc_score + test_auc_score)
-            diff_test_train_acc = abs(train_auc_score - test_auc_score)
-            # Calculating harmonic mean of train_recall_score and test_recall_score
             
+            #y_test_pred = (y_test_pred=='Yes').astype(int)
+
+            #If block will be executed for top 2 models and else will be executed for all other models.
+            # if type(model).__name__=="BackOrderEstimatorModel":
+            #     #Predicting Probabilities 
+            #     pred_prob_test = model.predict(X_test)
+            #     # roc curve for models
+            #     #fpr_test, tpr_test, thr_test = roc_curve(y_test_model, np.array(pred_prob_test[:]), pos_label=1)
+            #     # roc curve for tpr = fpr
+            #     random_probs = [0 for i in range(len(y_test_model))]
+            #     #p_fpr, p_tpr, _ = roc_curve(y_test_model, random_probs, pos_label=1)
+            #     # auc score calculation
+            #     auc_score_test = roc_auc_score(y_test_model, np.array(pred_prob_test[:]))
+            # else:
+            y_train_model = (y_train=='Yes').astype(int)
+            pred_prob_train = model.predict_proba(X_train)
+            # roc curve for models
+            fpr_test, tpr_test, thr_test = roc_curve(y_train_model, pred_prob_train[:,1], pos_label=1)
+            # roc curve for tpr = fpr
+            random_probs_train = [0 for i in range(len(y_train_model))]
+            p_fpr, p_tpr, _ = roc_curve(y_train_model, random_probs_train, pos_label=1)
+            # auc score calculation
+            auc_score_train = roc_auc_score(y_train_model, pred_prob_train[:,1])
+            
+            y_test_model = (y_test=='Yes').astype(int)
+            pred_prob_test = model.predict_proba(X_test)
+            # roc curve for models
+            fpr_test, tpr_test, thr_test = roc_curve(y_test_model, pred_prob_test[:,1], pos_label=1)
+            # roc curve for tpr = fpr
+            random_probs = [0 for i in range(len(y_test_model))]
+            p_fpr, p_tpr, _ = roc_curve(y_test_model, random_probs, pos_label=1)
+            # auc score calculation
+            auc_score_test = roc_auc_score(y_test_model, pred_prob_test[:,1])
+            
+            # matplotlib
+            
+            #plt.style.use('seaborn')
+
+            # plot roc curves
+            #plt.plot(fpr_test, tpr_test, linestyle='--',color='orange', label='Classification Model')
+            #plt.plot(p_fpr, p_tpr, linestyle='--', color='blue')
+            # title
+            #plt.title('ROC curve')
+            # x label
+            #plt.xlabel('False Positive Rate')
+            # y label
+            #plt.ylabel('True Positive rate')
+
+            #plt.legend(loc='best')
+            #plt.savefig('ROC',dpi=300)
+            #plt.show();
             #logging all important metric
             logging.info(f"{'>>'*30} Score {'<<'*30}")
-            logging.info(f"Train Confusion Matrix\t\t Test Confusion Matrix")
-            logging.info(f"{train_confusion_matrix}\t\t {test_confusion_matrix}")
-            logging.info(f"Train Recall Score\t\t Test Recall Score\t\t Average Score")
-            logging.info(f"{train_recall_score}\t\t {train_precision_score}\t\t{train_classification_report}")
+            #logging.info(f"Train Confusion Matrix\t\t Test Confusion Matrix")
+            #logging.info(f"\t\t {test_confusion_matrix}")
+            #logging.info(f"\t\t Test Recall Score")
             
-            logging.info(f"{'>>'*30} Loss {'<<'*30}")
+            #logging.info(f"{'>>'*30} Loss {'<<'*30}")
             
-            logging.info(f"Train Recall Score: [{train_classification_report}].")
-            logging.info(f"Test Recall Score: [{test_classification_report}].")
-            logging.info(f"Train AUC Score: [{train_roc_auc_score}].")
-            logging.info(f"Test AUC Score: [{test_roc_auc_score}].")
-
-            logging.info(f"Model Train Test Mean AUC Score: [{mean_roc_auc_score}].") 
-            logging.info(f"Model Mean Recall Score: [{mean_auc_score}].") 
-            logging.info(f"Diff test train AUC Score: [{diff_test_train_acc}].") 
+            #logging.info(f"Test Recall Score: [{test_classification_report}].")
+            logging.info(f"Train AUC Score: [{auc_score_train}].")
+            logging.info(f"Test AUC Score: [{auc_score_test}].")
+            # Calculating harmonic mean of train_auc_score and test_auc_score
+            mean_auc_score_test = (2 * (auc_score_train * auc_score_test)) / (auc_score_train + auc_score_test)
+            diff_test_train_acc = abs(auc_score_train - auc_score_test)
             
             #if model accuracy is greater than base accuracy and train and test score is within certain thershold
             #we will accept that model as accepted model
-            if mean_roc_auc_score >= base_accuracy and diff_test_train_acc < 0.05:
-                mean_auc_score >= 0.5
+            if auc_score_test >= 0.6:
                 metric_info_artifact = MetricInfoArtifact(model_name=model_name,
                                                         model_object=model,
-                                                        train_recall_score=train_recall_score,
-                                                        test_recall_score=test_recall_score,
-                                                        train_accuracy=train_roc_auc_score,
-                                                        test_accuracy=test_roc_auc_score,
-                                                        mean_roc_auc_score=mean_roc_auc_score,
-                                                        mean_auc_score=mean_auc_score,
+                                                        #test_recall_score=test_recall_score,
+                                                        #test_precision_score=test_precision_score,
+                                                        diff_test_train_acc=diff_test_train_acc,
+                                                        auc_score_test=mean_auc_score_test,
                                                         index_number=index_number)
 
                 logging.info(f"Acceptable model found {metric_info_artifact}. ")
@@ -185,7 +212,7 @@ def evaluate_regression_model(model_list: list, X_train:np.ndarray, y_train:np.n
     
     MetricInfoArtifact = namedtuple("MetricInfo",
                                 ["model_name", "model_object", "train_rmse", "test_rmse", "train_accuracy",
-                                 "test_accuracy", "model_accuracy", "index_number"])
+                                 "test_accuracy", "auc_score_test", "index_number"])
 
     """
     try:
