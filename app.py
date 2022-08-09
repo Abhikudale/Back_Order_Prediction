@@ -27,8 +27,8 @@ MODEL_DIR = os.path.join(ROOT_DIR, SAVED_MODELS_DIR_NAME)
 
 from backorder.logger import get_log_dataframe
 
-HOUSING_DATA_KEY = "backorder_data"
-MEDIAN_HOUSING_VALUE_KEY = "median_house_value"
+BACKORDER_DATA_KEY = "backorder_data"
+WENT_ON_BACKORDER_VALUE_KEY = "went_on_backorder_value"
 
 app = Flask(__name__)
 
@@ -103,37 +103,65 @@ def train():
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     context = {
-        HOUSING_DATA_KEY: None,
-        MEDIAN_HOUSING_VALUE_KEY: None
+        BACKORDER_DATA_KEY: None,
+        WENT_ON_BACKORDER_VALUE_KEY: None
     }
 
     if request.method == 'POST':
-        longitude = float(request.form['longitude'])
-        latitude = float(request.form['latitude'])
-        backorder_median_age = float(request.form['backorder_median_age'])
-        total_rooms = float(request.form['total_rooms'])
-        total_bedrooms = float(request.form['total_bedrooms'])
-        population = float(request.form['population'])
-        households = float(request.form['households'])
-        median_income = float(request.form['median_income'])
-        ocean_proximity = request.form['ocean_proximity']
-
-        backorder_data = BackOrderData(longitude=longitude,
-                                   latitude=latitude,
-                                   backorder_median_age=backorder_median_age,
-                                   total_rooms=total_rooms,
-                                   total_bedrooms=total_bedrooms,
-                                   population=population,
-                                   households=households,
-                                   median_income=median_income,
-                                   ocean_proximity=ocean_proximity,
-                                   )
+        sku = int(request.form['sku'])
+        national_inv = float(request.form['national_inv'])
+        lead_time = float(request.form['lead_time'])
+        in_transit_qty = float(request.form['in_transit_qty'])
+        forecast_3_month = float(request.form['forecast_3_month'])
+        forecast_6_month = float(request.form['forecast_6_month'])
+        forecast_9_month = float(request.form['forecast_9_month'])
+        sales_1_month = float(request.form['sales_1_month'])
+        sales_3_month = float(request.form['sales_3_month'])
+        sales_6_month = float(request.form['sales_6_month'])
+        sales_9_month = float(request.form['sales_9_month'])
+        min_bank = float(request.form['min_bank'])
+        pieces_past_due = float(request.form['pieces_past_due'])
+        perf_6_month_avg = float(request.form['perf_6_month_avg'])
+        perf_12_month_avg = float(request.form['perf_12_month_avg'])
+        local_bo_qty = float(request.form['local_bo_qty'])
+        deck_risk = request.form['deck_risk']
+        oe_constraint = request.form['oe_constraint']
+        ppap_risk = request.form['ppap_risk']
+        stop_auto_buy = request.form['stop_auto_buy']
+        rev_stop = request.form['rev_stop']
+        potential_issue = request.form['potential_issue']
+        #went_on_backorder = request.form['went_on_backorder']
+       
+        backorder_data = BackOrderData(
+            sku = sku,
+            national_inv = national_inv,
+            lead_time = lead_time,
+            in_transit_qty = in_transit_qty,
+            forecast_3_month = forecast_3_month,
+            forecast_6_month = forecast_6_month,
+            forecast_9_month = forecast_9_month,
+            sales_1_month = sales_1_month,
+            sales_3_month = sales_3_month,
+            sales_6_month = sales_6_month,
+            sales_9_month = sales_9_month,
+            min_bank = min_bank,
+            pieces_past_due = pieces_past_due,
+            perf_6_month_avg = perf_6_month_avg,
+            perf_12_month_avg = perf_12_month_avg,
+            local_bo_qty = local_bo_qty,
+            deck_risk = deck_risk,
+            oe_constraint = oe_constraint,
+            ppap_risk = ppap_risk,
+            stop_auto_buy = stop_auto_buy,
+            rev_stop = rev_stop,
+            potential_issue = potential_issue
+        )
         backorder_df = backorder_data.get_backorder_input_data_frame()
         backorder_predictor = BackOrderPredictor(model_dir=MODEL_DIR)
-        median_backorder_value = backorder_predictor.predict(X=backorder_df)
+        went_on_backorder_value = backorder_predictor.predict(X=backorder_df)
         context = {
-            HOUSING_DATA_KEY: backorder_data.get_backorder_data_as_dict(),
-            MEDIAN_HOUSING_VALUE_KEY: median_backorder_value,
+            BACKORDER_DATA_KEY: backorder_data.get_backorder_data_as_dict(),
+            WENT_ON_BACKORDER_VALUE_KEY: went_on_backorder_value,
         }
         return render_template('predict.html', context=context)
     return render_template("predict.html", context=context)

@@ -93,8 +93,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             logging.info(f"Test Precision Score: [{test_precision_score}].")
             
             #Calculating mean squared error on traintrain_precision_scoreng dataset
-            train_f1_score=f1_score(y_train, y_train_pred,pos_label='Yes')
-            test_f1_score=f1_score(y_test, y_test_pred,pos_label='Yes')
+            train_f1_score = f1_score(y_train, y_train_pred,pos_label='Yes',average='weighted')
+            test_f1_score = f1_score(y_test, y_test_pred,pos_label='Yes',average='weighted')
             logging.info(f"Train F Score: [{train_f1_score}].")
             logging.info(f"Test F Score: [{test_f1_score}].")
             
@@ -168,6 +168,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             
             #logging.info(f"{'>>'*30} Loss {'<<'*30}")
             
+            mean_f1_score = (2 * (train_f1_score * test_f1_score)) / (train_f1_score + test_f1_score)
+            logging.info(f"Mean F1 score for Train and Test: [{mean_f1_score}].")
             #logging.info(f"Test Recall Score: [{test_classification_report}].")
             logging.info(f"Train AUC Score: [{auc_score_train}].")
             logging.info(f"Test AUC Score: [{auc_score_test}].")
@@ -177,7 +179,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             
             #if model accuracy is greater than base accuracy and train and test score is within certain thershold
             #we will accept that model as accepted model
-            if auc_score_test >= 0.6:
+            if auc_score_test >= 0.6 and diff_test_train_acc<=0.05 and mean_auc_score_test>=0.6 \
+                and mean_f1_score>=0.6:
                 metric_info_artifact = MetricInfoArtifact(model_name=model_name,
                                                         model_object=model,
                                                         #test_recall_score=test_recall_score,

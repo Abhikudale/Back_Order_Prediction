@@ -1,5 +1,5 @@
 columns:
-  sku: float
+  sku: int
   national_inv: float
   lead_time: float
   in_transit_qty: float
@@ -24,7 +24,6 @@ columns:
   went_on_backorder: category
 
 numerical_columns:
-  - sku
   - national_inv
   - lead_time
   - in_transit_qty

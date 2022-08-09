@@ -1,5 +1,6 @@
 
 import sys,os
+from tkinter.tix import COLUMN
 
 from backorder.constant import *
 from backorder.exception import BackOrderException
@@ -131,10 +132,12 @@ class DataTransformation:
             logging.info(f"Dropping SKU column and Replacing lead time Null values to zero for Train Dataframe")
             train_df["lead_time"].fillna(0, inplace = True)
             train_df.dropna()
+            train_df.drop(columns=["sku"], axis=1, inplace=True)
 
             logging.info(f"Dropping SKU column and Replacing lead time Null values to zero for Test Dataframe")
             test_df["lead_time"].fillna(0, inplace = True)
             test_df.dropna()
+            test_df.drop(columns=["sku"], axis=1, inplace=True)
 
             logging.info(f"Splitting input and target feature from training and testing dataframe.")
 

@@ -10,7 +10,7 @@ import pandas as pd
 class BackOrderData:
 
     def __init__(self,
-                sku: float,
+                sku: int,
                 national_inv: float,
                 lead_time: float,
                 in_transit_qty: float,
@@ -40,7 +40,7 @@ class BackOrderData:
             self.lead_time = lead_time,
             self.in_transit_qty = in_transit_qty,
             self.forecast_3_month = forecast_3_month,
-            self.forecast_6_month = forecast_3_month,
+            self.forecast_6_month = forecast_6_month,
             self.forecast_9_month = forecast_9_month,
             self.sales_1_month = sales_1_month,
             self.sales_3_month = sales_3_month,
@@ -78,7 +78,7 @@ class BackOrderData:
                 "lead_time":[self.lead_time],
                 "in_transit_qty":[self.in_transit_qty],
                 "forecast_3_month":[self.forecast_3_month],
-                "forecast_3_month":[self.forecast_6_month],
+                "forecast_6_month":[self.forecast_6_month],
                 "forecast_9_month":[self.forecast_9_month],
                 "sales_1_month":[self.sales_1_month],
                 "sales_3_month":[self.sales_3_month],
@@ -95,7 +95,6 @@ class BackOrderData:
                 "stop_auto_buy":[self.stop_auto_buy],
                 "rev_stop":[self.rev_stop],
                 "potential_issue":[self.potential_issue],
-                "went_on_backorder": [self.went_on_backorder]
                 }
             return input_data
         except Exception as e:
@@ -124,7 +123,7 @@ class BackOrderPredictor:
         try:
             model_path = self.get_latest_model_path()
             model = load_object(file_path=model_path)
-            median_house_value = model.predict(X)
-            return median_house_value[0]
+            went_on_backorder_value = model.predict(X)
+            return went_on_backorder_value[0]
         except Exception as e:
             raise BackOrderException(e, sys) from e
