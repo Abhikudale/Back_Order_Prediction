@@ -85,9 +85,6 @@ class DataTransformation:
 
             num_pipeline = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy="median")),
-                    ('feature_generator', FeatureGenerator(
-                        columns=numerical_columns
-                    )),
                     ('scaler', StandardScaler())
             ]
             )
