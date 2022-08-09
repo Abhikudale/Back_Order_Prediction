@@ -77,6 +77,20 @@
                 <input class="form-control" type="text" name="min_bank"
                     placeholder="Enter a value of min_bank" required />
             </div>
+            
+            <div class="mb-3">
+                <label class="form-label">potential_issue</label>
+                <select class="form-control" name="potential_issue" placeholder="Enter a value of potential_issue"
+                    required>
+                    <option value="Yes">
+                        Yes
+                    </option>
+                    <option value="No">
+                        No
+                    </option>
+                </select>
+            </div>
+            
             <div class="mb-3">
                 <label class="form-label">pieces_past_due</label>
                 <input class="form-control" type="text" name="pieces_past_due"
@@ -157,19 +171,7 @@
                     </option>
                 </select>
             </div>
-            <div class="mb-3">
-                <label class="form-label">potential_issue</label>
-                <select class="form-control" name="potential_issue" placeholder="Enter a value of potential_issue"
-                    required>
-                    <option value="Yes">
-                        Yes
-                    </option>
-                    <option value="No">
-                        No
-                    </option>
-                </select>
-            </div>
-
+            
             <div class="mb-3">
 
                 <input class="btn btn-primary" type="submit" value="Predict Went To Back Order" required />

@@ -11,6 +11,7 @@ columns:
   sales_6_month: float
   sales_9_month: float
   min_bank: float
+  potential_issue: category
   pieces_past_due: float
   perf_6_month_avg: float
   perf_12_month_avg: float
@@ -20,7 +21,6 @@ columns:
   ppap_risk: category
   stop_auto_buy: category
   rev_stop: category
-  potential_issue: category
   went_on_backorder: category
 
 numerical_columns:
@@ -41,16 +41,19 @@ numerical_columns:
   - local_bo_qty
   
 categorical_columns:
+  - potential_issue
   - deck_risk
   - oe_constraint
   - ppap_risk
   - stop_auto_buy
   - rev_stop
-  - potential_issue
 
 target_column: went_on_backorder
 
 domain_value:
+  - potential_issue:
+    - Yes
+    - No
   - deck_risk:
     - Yes
     - No
@@ -66,9 +69,4 @@ domain_value:
   - rev_stop:
     - Yes
     - No
-  - potential_issue:
-    - Yes
-    - No
-  - went_on_backorder:
-    - Yes
-    - No
+

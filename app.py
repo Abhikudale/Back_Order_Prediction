@@ -120,16 +120,16 @@ def predict():
         sales_6_month = float(request.form['sales_6_month'])
         sales_9_month = float(request.form['sales_9_month'])
         min_bank = float(request.form['min_bank'])
+        potential_issue = str(request.form['potential_issue'])
         pieces_past_due = float(request.form['pieces_past_due'])
         perf_6_month_avg = float(request.form['perf_6_month_avg'])
         perf_12_month_avg = float(request.form['perf_12_month_avg'])
         local_bo_qty = float(request.form['local_bo_qty'])
-        deck_risk = request.form['deck_risk']
-        oe_constraint = request.form['oe_constraint']
-        ppap_risk = request.form['ppap_risk']
-        stop_auto_buy = request.form['stop_auto_buy']
-        rev_stop = request.form['rev_stop']
-        potential_issue = request.form['potential_issue']
+        deck_risk = str(request.form['deck_risk'])
+        oe_constraint = str(request.form['oe_constraint'])
+        ppap_risk = str(request.form['ppap_risk'])
+        stop_auto_buy = str(request.form['stop_auto_buy'])
+        rev_stop = str(request.form['rev_stop'])
         #went_on_backorder = request.form['went_on_backorder']
        
         backorder_data = BackOrderData(
@@ -145,6 +145,7 @@ def predict():
             sales_6_month = sales_6_month,
             sales_9_month = sales_9_month,
             min_bank = min_bank,
+            potential_issue = potential_issue,
             pieces_past_due = pieces_past_due,
             perf_6_month_avg = perf_6_month_avg,
             perf_12_month_avg = perf_12_month_avg,
@@ -153,8 +154,7 @@ def predict():
             oe_constraint = oe_constraint,
             ppap_risk = ppap_risk,
             stop_auto_buy = stop_auto_buy,
-            rev_stop = rev_stop,
-            potential_issue = potential_issue
+            rev_stop = rev_stop
         )
         backorder_df = backorder_data.get_backorder_input_data_frame()
         backorder_predictor = BackOrderPredictor(model_dir=MODEL_DIR)
