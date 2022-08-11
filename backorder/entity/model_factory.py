@@ -69,6 +69,7 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
         #model_list = [model.best_model for model in model_list]
         index_number = 0
         metric_info_artifact = None
+        
         for model in model_list:
             model_name = str(model)  #getting model name based on model object
             logging.info(f"{'>>'*30}Started evaluating model: [{type(model).__name__}] {'<<'*30}")
@@ -81,6 +82,10 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             #train_accuracy_score = accuracy_score(y_train, y_train_pred)
             #test_accuracy_score = accuracy_score(y_test, y_test_pred)
             #Calculating recall score on training and testing dataset
+            if type(model).__name__=="XGBClassifier":
+                y_train_pred=np.where(y_train_pred==1,'Yes','No')
+                y_test_pred=np.where(y_test_pred==1,'Yes','No')
+            
             train_recall_score = recall_score(y_train, y_train_pred,pos_label='Yes')
             test_recall_score = recall_score(y_test, y_test_pred, pos_label='Yes')
             logging.info(f"Train Recall Score: [{train_recall_score}].")
@@ -93,8 +98,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             logging.info(f"Test Precision Score: [{test_precision_score}].")
             
             #Calculating mean squared error on traintrain_precision_scoreng dataset
-            train_f1_score = f1_score(y_train, y_train_pred,pos_label='Yes',average='weighted')
-            test_f1_score = f1_score(y_test, y_test_pred,pos_label='Yes',average='weighted')
+            train_f1_score = f1_score(y_train, y_train_pred,pos_label='Yes')
+            test_f1_score = f1_score(y_test, y_test_pred,pos_label='Yes')
             logging.info(f"Train F Score: [{train_f1_score}].")
             logging.info(f"Test F Score: [{test_f1_score}].")
             
@@ -179,8 +184,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             
             #if model accuracy is greater than base accuracy and train and test score is within certain thershold
             #we will accept that model as accepted model
-            if auc_score_test >= 0.6 and diff_test_train_acc<=0.05 and mean_auc_score_test>=0.6 \
-                and mean_f1_score>=0.6:
+            if auc_score_test >= 0.6 and diff_test_train_acc <= 0.05 and mean_auc_score_test >= 0.6  \
+                and mean_f1_score > 0.6:
                 metric_info_artifact = MetricInfoArtifact(model_name=model_name,
                                                         model_object=model,
                                                         #test_recall_score=test_recall_score,
@@ -378,7 +383,7 @@ class ModelFactory:
         try:
             # instantiating GridSearchCV class
             
-           
+            
             grid_search_cv_ref = ModelFactory.class_for_name(module_name=self.grid_search_cv_module,
                                                              class_name=self.grid_search_class_name
                                                              )
@@ -391,7 +396,15 @@ class ModelFactory:
             
             message = f'{">>"* 30} f"Training {type(initialized_model.model).__name__} Started." {"<<"*30}'
             logging.info(message)
-            grid_search_cv.fit(input_feature, output_feature)
+
+            if initialized_model.model_name=="xgboost.XGBClassifier":
+                output_feature_xgboost = output_feature.copy()
+                output_feature_xgboost[output_feature_xgboost=='Yes'] =1
+                output_feature_xgboost[output_feature_xgboost=='No'] =0
+                grid_search_cv.fit(input_feature, output_feature_xgboost)
+            else:
+                grid_search_cv.fit(input_feature, output_feature)    
+            
             message = f'{">>"* 30} f"Training {type(initialized_model.model).__name__}" completed {"<<"*30}'
             grid_searched_best_model = GridSearchedBestModel(model_serial_number=initialized_model.model_serial_number,
                                                              model=initialized_model.model,
@@ -468,6 +481,7 @@ class ModelFactory:
         try:
             self.grid_searched_best_model_list = []
             for initialized_model_list in initialized_model_list:
+                
                 grid_searched_best_model = self.initiate_best_parameter_search_for_initialized_model(
                     initialized_model=initialized_model_list,
                     input_feature=input_feature,

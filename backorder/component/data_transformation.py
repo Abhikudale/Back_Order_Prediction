@@ -125,7 +125,7 @@ class DataTransformation:
             test_df = load_data(file_path=test_file_path,schema_file_path=schema_file_path)
             schema = read_yaml_file(file_path=schema_file_path)
             target_column_name = schema[TARGET_COLUMN_KEY]
-
+            
             logging.info(f"Dropping SKU column and Replacing lead time Null values to zero for Train Dataframe")
             train_df["lead_time"].fillna(0, inplace = True)
             train_df.dropna()

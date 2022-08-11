@@ -9,7 +9,10 @@ from backorder.logger import logging
 import pandas as pd
 import numpy as np
 import os, sys
+from imblearn.over_sampling import SMOTE 
+from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import RandomOverSampler
 
 class DataIngestion:
     def __init__(self, data_ingestion_config:DataIngestionConfig):
@@ -74,14 +77,26 @@ class DataIngestion:
 
             backorder_data_frame = pd.read_csv(backorder_file_path)
 
-            backorder_data_frame = backorder_data_frame.head(10000)
+            #backorder_data_frame = backorder_data_frame.head(10000)
             
             
             logging.info(f"Splitting data in to Train and Test dataset")
-
             train_set = None
-
             test_set = None
+            
+            backorder_data_frame_Yes = backorder_data_frame.loc[backorder_data_frame['went_on_backorder'] == 'Yes']
+            row_size_yes = backorder_data_frame_Yes.shape[0]
+            
+            backorder_data_frame_No = backorder_data_frame.loc[backorder_data_frame['went_on_backorder'] == 'No']
+            backorder_data_frame_No = backorder_data_frame_No.sample(row_size_yes)
+
+            # Concatenate the rows from the Yes dataset and No dataset into the backorder_data_frame.
+            backorder_data_frame = None
+            frames = [backorder_data_frame_No, backorder_data_frame_Yes]
+            backorder_data_frame = pd.concat(frames)
+            
+            backorder_data_frame.reset_index(drop=True,inplace=True)
+            backorder_data_frame.reset_index()
             
             X = backorder_data_frame.iloc[:,:-1]
             y = backorder_data_frame.iloc[:,-1]

@@ -1,3 +1,5 @@
+imblearn
+xgboost
 numpy
 Flask
 gunicorn
