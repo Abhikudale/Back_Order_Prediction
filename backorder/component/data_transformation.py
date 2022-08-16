@@ -19,44 +19,6 @@ import pandas as pd
 from backorder.constant import *
 from backorder.util.util import read_yaml_file, save_object, save_numpy_array_data, load_data
 
-#   longitude: float
-#   latitude: float
-#   backorder_median_age: float
-#   total_rooms: float
-#   total_bedrooms: float
-#   population: float
-#   households: float
-#   median_income: float
-#   median_house_value: float
-#   ocean_proximity: category
-#   income_cat: float
-
-
-class FeatureGenerator(BaseEstimator, TransformerMixin):
-
-    def __init__(self, columns=None):
-        """
-        FeatureGenerator Initialization
-        """
-        try:
-            logging.info(f"{'=' * 20} Data Validation log started. {'=' * 20} \n\n")
-            self.columns = columns
-            
-        except Exception as e:
-            raise BackOrderException(e, sys) from e
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        try:
-            
-            generated_feature = np.c_[
-                    X]
-            return generated_feature
-        except Exception as e:
-            raise BackOrderException(e, sys) from e
-
 
 
 class DataTransformation:

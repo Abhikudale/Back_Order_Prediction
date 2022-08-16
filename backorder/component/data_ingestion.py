@@ -77,7 +77,7 @@ class DataIngestion:
 
             backorder_data_frame = pd.read_csv(backorder_file_path)
 
-            #backorder_data_frame = backorder_data_frame.head(10000)
+            backorder_data_frame = backorder_data_frame.head(10000)
             
             
             logging.info(f"Splitting data in to Train and Test dataset")

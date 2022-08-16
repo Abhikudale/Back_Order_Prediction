@@ -125,7 +125,7 @@ class ModelEvaluation:
                 logging.info(f"Model accepted. Model eval artifact {model_evaluation_artifact} created")
                 return model_evaluation_artifact
 
-            #model_list = [model, trained_model_object]
+            model_list = [model, trained_model_object]
             model_list = [model]
             # metric_info_artifact = evaluate_classification_model(model_list=model_list,
             #                                                    X_train=train_dataframe,

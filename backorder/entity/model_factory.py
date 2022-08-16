@@ -76,12 +76,8 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             
             y_train_pred = model.predict(X_train)
             y_test_pred = model.predict(X_test)
+            
             #Getting prediction for training and testing dataset
-            #Calculating r squared score on training and testing dataset
-            #Accuracy is not application for this project as it involves imbalanced dataset
-            #train_accuracy_score = accuracy_score(y_train, y_train_pred)
-            #test_accuracy_score = accuracy_score(y_test, y_test_pred)
-            #Calculating recall score on training and testing dataset
             if type(model).__name__=="XGBClassifier":
                 y_train_pred=np.where(y_train_pred==1,'Yes','No')
                 y_test_pred=np.where(y_test_pred==1,'Yes','No')
@@ -114,20 +110,6 @@ def evaluate_classification_model(model_list: list, X_train:np.ndarray, y_train:
             logging.info(f"Test Classification Report: [{test_classification_report}].")
             
             
-            #y_test_pred = (y_test_pred=='Yes').astype(int)
-
-            #If block will be executed for top 2 models and else will be executed for all other models.
-            # if type(model).__name__=="BackOrderEstimatorModel":
-            #     #Predicting Probabilities 
-            #     pred_prob_test = model.predict(X_test)
-            #     # roc curve for models
-            #     #fpr_test, tpr_test, thr_test = roc_curve(y_test_model, np.array(pred_prob_test[:]), pos_label=1)
-            #     # roc curve for tpr = fpr
-            #     random_probs = [0 for i in range(len(y_test_model))]
-            #     #p_fpr, p_tpr, _ = roc_curve(y_test_model, random_probs, pos_label=1)
-            #     # auc score calculation
-            #     auc_score_test = roc_auc_score(y_test_model, np.array(pred_prob_test[:]))
-            # else:
             y_train_model = (y_train=='Yes').astype(int)
             pred_prob_train = model.predict_proba(X_train)
             # roc curve for models
