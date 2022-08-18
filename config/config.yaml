@@ -5,7 +5,7 @@ training_pipeline_config:
   artifact_dir: artifact
 
 data_ingestion_config:
-  dataset_download_url: C:\Kaggle_Training_Dataset_v2.csv
+  dataset_download_url: dataset\Kaggle_Training_Dataset_v2.zip
   raw_data_dir: raw_data
   tgz_download_dir: tgz_data
   ingested_dir: ingested_data
