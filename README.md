@@ -42,3 +42,15 @@ Adding this line to check if auto deployment happens
 
 Install ipykernel
 pip install ipykernel
+
+
+
+First, update all origin/<branch> refs to latest:
+
+git fetch --all
+Backup your current branch (e.g. master):
+
+git branch backup-master
+Jump to the latest commit on origin/master and checkout those files:
+
+git reset --hard origin/master
