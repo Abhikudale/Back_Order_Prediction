@@ -30,9 +30,8 @@ class DataIngestion:
             #download_url = os.path.join(os.curdir, download_url)
             #folder location to download file
             tgz_download_dir = self.data_ingestion_config.tgz_download_dir
-
+            
             os.makedirs(tgz_download_dir,exist_ok=True)
-
             #backorder_file_name = os.path.basename(download_url)
 
             tgz_file_path = os.path.join(tgz_download_dir)
@@ -56,8 +55,8 @@ class DataIngestion:
             os.makedirs(raw_data_dir,exist_ok=True)
 
             logging.info("Copy file from tgz file: [{tgz_file_path}] in to dir: [{raw_data_dir}]")
-            shutil.copy(src=tgz_file_path,dst=raw_data_dir)
             #shutil.copy(src=tgz_file_path,dst=raw_data_dir)
+            shutil.copy(src=tgz_file_path,dst=raw_data_dir)
             #with tarfile.open(tgz_file_path) as backorder_tgz_file_obj:
             #    backorder_tgz_file_obj.extractall(path=raw_data_dir)
             logging.info(f"File copying completed")
